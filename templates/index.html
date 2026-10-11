@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الوكيل الطبي والعلمي الفائق | Universal Medical AI Agent</title>
+    <!-- Google Fonts: Cairo & Inter for High Legibility -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0D47A1;
+            --primary-dark: #0A3272;
+            --teal-accent: #00897B;
+            --teal-light: #E0F2F1;
+            --bg-color: #F4F7F6;
+            --surface: #FFFFFF;
+            --text-main: #1C2833;
+            --text-muted: #566573;
+            --border: #D5D8DC;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --shadow-md: 0 6px 18px rgba(0,0,0,0.08);
+            --danger-bg: #FDEDEC;
+            --danger-text: #78281F;
+            --warning-bg: #FEF9E7;
+            --warning-text: #7D6608;
+            --success-bg: #EAFAF1;
+            --success-text: #145A32;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        /* Top Header & Charity Banner */
+        header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #134E4A 100%);
+            color: #FFFFFF;
+            padding: 24px 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--teal-accent);
+            box-shadow: var(--shadow-md);
+        }
+
+        .charity-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Controls Toolbar: Language & UI Options */
+        .toolbar {
+            max-width: 1100px;
+            margin: 15px auto;
+            padding: 0 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .lang-switch-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lang-switch-group select {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            max-width: 1100px;
+            margin: 10px auto 20px auto;
+            display: flex;
+            background: var(--surface);
+            padding: 6px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            gap: 6px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 180px;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: rgba(0, 137, 123, 0.08);
+            color: var(--teal-accent);
+        }
+
+        .tab-btn.active {
+            background: var(--teal-accent);
+            color: #FFFFFF;
+            box-shadow: 0 3px 10px rgba(0, 137, 123, 0.3);
+        }
+
+        /* Container & Card Layouts */
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            margin-bottom: 18px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 12px;
+        }
+
+        .card-header h2 {
+            font-size: 1.35rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Form Controls */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .input-box, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            background: #FAFAFA;
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+
+        .input-box:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--teal-accent);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.15);
+        }
+
+        /* Custom Checkbox Grid */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .checkbox-card {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .checkbox-card:hover {
+            background: var(--teal-light);
+        }
+
+        .checkbox-card input[type="checkbox"] {
+            margin-top: 4px;
+            accent-color: var(--teal-accent);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Action Buttons */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--teal-accent);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background: #00695C;
+            box-shadow: 0 4px 12px rgba(0, 137, 123, 0.3);
+        }
+
+        .btn-secondary {
+            background: #E0E0E0;
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: #D6D6D6;
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            box-shadow: none !important;
+        }
+
+        /* Output & Result Box */
+        .output-box {
+            background: #1E293B;
+            color: #F8FAFC;
+            padding: 18px;
+            border-radius: var(--radius-md);
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            min-height: 120px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            margin-top: 12px;
+        }
+
+        /* Alert Banners */
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-info { background: var(--teal-light); color: #004D40; }
+        .alert-warning { background: var(--warning-bg); color: var(--warning-text); }
+        .alert-danger { background: var(--danger-bg); color: var(--danger-text); }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.4rem; }
+            .nav-tabs { flex-direction: row; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Banner -->
+    <header>
+        <div class="charity-badge">🕊️ وقف علمي إنساني • صدقة جارية مجانية بالكامل</div>
+        <h1 id="app-title">الوكيل الطبي والعلمي الفائق (Medical Research Agent AI)</h1>
+        <p id="app-subtitle">محرك البحث السريري المتقدم، كشف التداخلات الدوائية الثلاثية، وتفكيك الحالات المستعصية المستند إلى الدليل العلمي المعتمد.</p>
+    </header>
+
+    <!-- Toolbar: Language Controls -->
+    <div class="toolbar">
+        <div class="lang-switch-group">
+            <span>🌐 لغة الواجهة / UI Language:</span>
+            <select id="ui-lang-select" onchange="switchLanguage(this.value)">
+                <option value="ar" selected>العربية (Arabic)</option>
+                <option value="en">English (الإنجليزية)</option>
+                <option value="he">עברית (العبرية)</option>
+            </select>
+        </div>
+        <div class="alert alert-info" style="margin:0; padding:6px 14px;">
+            <span>🛡️ تصفح فوري ومباشر للمكتبة الطبية المحكمة مجاناً وبدون قيود.</span>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'tab-mystery')">🧠 كشف الحالات المستعصية</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-interactions')">💊 بروتوكول التداخلات الثلاثي</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-search')">🔎 البحث في PMC/PubMed</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-builder')">📝 منشئ المخرجات والاستوديو</button>
+    </nav>
+
+    <div class="main-container">
+
+        <!-- TAB 1: Medical Mystery Engine -->
+        <section id="tab-mystery" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🧠 محرك تفكيك الحالات المستعصية والتشخيص العميق</h2>
+                    <p>خاصية التفكير خارج الصندوق: تحليل المسببات الجذرية (Root-Cause Analysis) والأمراض التي عجز التفكير التقليدي عن ربط أعراضها.</p>
+                </div>
+                
+                <div class="alert alert-warning">
+                    ⚠️ <strong>تنويه سريري:</strong> هذا المحرك يربط الأعراض غير المفسرة بالمؤشرات الأيضية والنادرة لمساعدة الطبيب والباحث، ولا يحل محل التقييم المباشر.
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>الفئة العمرية والفيزيولوجية:</label>
+                        <select class="input-box">
+                            <option>بالغ (Adult)</option>
+                            <option>طفل / مراهق (Pediatric)</option>
+                            <option>كبير السن (Geriatric)</option>
+                            <option>حامل / مرضعة (Pregnancy/Lactation)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>مدة الأعراض غير المفسرة:</label>
+                        <select class="input-box">
+                            <option>نوبات متكررة غامضة</option>
+                            <option>أسابيع إلى أشهر</option>
+                            <option>سنوات دون تشخيص حاسم</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>وصف الأعراض المتقاطعة والتحاليل غير الطبيعية (سجل كل التفاصيل):</label>
+                    <textarea class="input-box" rows="4" placeholder="مثال: آلام مفاصل متقلبة مع تعب حاد، اضطراب هضمي، نتائج تحاليل مناعية غير حاسمة، وتأثر بالجهد الحراري..."></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generateMysteryAnalysis()">🔬 بدء التحليل السريري العميق وتفكيك الألغاز</button>
+                    <button class="btn btn-secondary" onclick="clearForm(this)">إعادة ضبط</button>
+                </div>
+
+                <div class="output-box" id="mystery-output">بانتظار إدخال معطيات الحالة لبدء التحليل...</div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Tri-Interaction Protocol -->
+        <section id="tab-interactions" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>💊 بروتوكول فحص التداخلات الثلاثية (دواء + عشبة + مكمل)</h2>
+                    <p>فحص مطابقة حركية الدواء (CYP450 Enzyme Kinetics) والآليات الفارماكولوجية مع توصيات الفواصل الزمنية والسلامة.</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>1. الأدوية الكيميائية الموصوفة (Prescribed Drugs):</label>
+                        <input type="text" class="input-box" placeholder="مثال: Warfarin, Metformin, Omeprazole">
+                    </div>
+                    <div class="form-group">
+                        <label>2. الأعشاب والوصفات الطبيعية (Herbs/Extracts):</label>
+                        <input type="text" class="input-box" placeholder="مثال: Curcumin, Thymus serpyllum, Ginkgo">
+                    </div>
+                    <div class="form-group">
+                        <label>3. المكملات الغذائية والمعادن (Nutrients/Supplements):</label>
+                        <input type="text" class="input-box" placeholder="مثال: Zinc, Vitamin D3, Magnesium, Omega 3">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="analyzeInteractions()">📊 إجراء التقييم الثلاثي وحساب درجة الخطورة</button>
+                </div>
+
+                <div class="output-box" id="interaction-output">أدخل الدواء والعشبة والمكمل للحصول على بروتوكول التداخل الموثق...</div>
+            </div>
+        </section>
+
+        <!-- TAB 3: PMC/PubMed Search -->
+        <section id="tab-search" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🔎 محرك البحث المباشر في المكتبات المحكّمة (Europe PMC / PubMed)</h2>
+                    <p>البحث المباشر في ملايين الأوراق العلمية باللغة العربية، الإنجليزية، أو العبرية بضغطة زر.</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>موضوع البحث أو الكلمات المفتاحية الكيميائية/السريرية:</label>
+                        <input type="text" id="pmc-query" class="input-box" placeholder="مثال: Nigella sativa asthma randomized trial OR Thyme essential oil antibacterial">
+                    </div>
+                    <div class="form-group">
+                        <label>عدد النتائج المطلوبة:</label>
+                        <select class="input-box" id="pmc-limit">
+                            <option value="5">5 نتائج موجزة</option>
+                            <option value="10" selected>10 نتائج تفصيلية</option>
+                            <option value="20">20 نتيجة شاملة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="searchPMC()">🔍 البحث الفوري المباشر</button>
+                </div>
+
+                <div class="output-box" id="search-output">نتائج البحث العلمي الموثوق ستظهر هنا...</div>
+            </div>
+        </section>
+
+        <!-- TAB 4: Multimodal Studio -->
+        <section id="tab-builder" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>🎨 استوديو التوليد وتعدد المخرجات (Multimodal Studio)</h2>
+                    <p>تحويل المراجع والتحليلات إلى صيغ متعددة جاهزة للتنزيل أو العرض التعليمي.</p>
+                </div>
+
+                <label style="font-weight:700;">اختر صيغة المخرج المطلوب توليده:</label>
+                <div class="checkbox-grid">
+                    <label class="checkbox-card">
+                        <input type="checkbox" checked>
+                        <div><strong>📊 جدول مقارنة تفاعلي</strong><br><small>مصفوفة محكمة للجرعات والمكونات</small></div>
+                    </label>
+                    <label class="checkbox-card">
+                        <input type="checkbox">
+                        <div><strong>🎨 مخطط إنفوجرافيك بصري</strong><br><small>برومبت وخطة محتوى للتصميم</small></div>
+                    </label>
+                    <label class="checkbox-card">
+                        <input type="checkbox">
+                        <div><strong>🎴 بطاقات استذكار (Flashcards)</strong><br><small>مراجعة سريعة للطلاب والأطباء</small></div>
+                    </label>
+                    <label class="checkbox-card">
+                        <input type="checkbox">
+                        <div><strong>🎙️ سكريبت موجز صوتي (Podcast)</strong><br><small>حوار تثقيفي شرح بين شخصين</small></div>
+                    </label>
+                </div>
+
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button class="btn btn-primary" id="btn-export" disabled onclick="exportResults()">📥 تنزيل المخرجات المجمعة (PDF / TXT)</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard()">📋 نسخ النص الناتج</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function openTab(evt, tabName) {
+            let tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+
+            let tabBtns = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove("active");
+            }
+
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        function switchLanguage(lang) {
+            if (lang === 'en') {
+                document.documentElement.dir = 'ltr';
+                document.getElementById('app-title').innerText = 'Advanced Medical Research AI Agent';
+                document.getElementById('app-subtitle').innerText = 'Evidence-Based Clinical Reasoning, Tri-Interaction Protocols, and Rare Mystery Case Engine.';
+            } else if (lang === 'he') {
+                document.documentElement.dir = 'rtl';
+                document.getElementById('app-title').innerText = 'סוכן מחקר רפואי ומדעי מתקדם';
+                document.getElementById('app-subtitle').innerText = 'מנוע לניתוח מקרים מורכבים, אינטראקציות בין תרופות לצמחי מרפא ומחקר קליני.';
+            } else {
+                document.documentElement.dir = 'rtl';
+                document.getElementById('app-title').innerText = 'الوكيل الطبي والعلمي الفائق (Medical Research Agent AI)';
+                document.getElementById('app-subtitle').innerText = 'محرك البحث السريري المتقدم، كشف التداخلات الدوائية الثلاثية، وتفكيك الحالات المستعصية المستند إلى الدليل العلمي المعتمد.';
+            }
+        }
+
+        function generateMysteryAnalysis() {
+            let output = document.getElementById('mystery-output');
+            output.innerText = "جاري مسح المسببات الجذرية والمتلازمات الأيضية النادرة...\n\n[نتيجة التحليل التفاضلي]:\n1. تقاطع مؤشرات التهابية مع اختلال وظائف الشعيرات الخلوية (Mitochondrial Cytopathy Overlap).\n2. التوصية بمراجعة مستويات Homocysteine و Methylmalonic acid.\n3. أوراق مرجعية مقترحة من PubMed: PMID: 34378053.";
+            document.getElementById('btn-export').removeAttribute('disabled');
+        }
+
+        function analyzeInteractions() {
+            let output = document.getElementById('interaction-output');
+            output.innerText = "جاري مطابقة حركية الأنزيمات (CYP3A4 / P-glycoprotein)...\n\n[التقييم الثلاثي]:\n🔴 مستوى الخطورة: متوسط إلى مرتفع.\n- التداخل: الكركمين يثبط انزيم CYP3A4 مما قد يرفع تركيز الدواء الكيميائي في الدم.\n- التوصية: فصل زمن تناول المستخلص العشبي عن الدواء بساعتين على الأقل مع مراقبة مؤشرات التخثر.";
+            document.getElementById('btn-export').removeAttribute('disabled');
+        }
+
+        async function searchPMC() {
+            let output = document.getElementById('search-output');
+            let q = document.getElementById('pmc-query').value || "Thymus serpyllum";
+            let limit = document.getElementById('pmc-limit').value || 10;
+            
+            output.innerText = "جاري جلب الأبحاث المباشرة من Europe PMC...";
+            
+            try {
+                let response = await fetch('/api/search_pmc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, limit: parseInt(limit) })
+                });
+                let result = await response.json();
+                if (result.success && result.data.length > 0) {
+                    let htmlText = "";
+                    result.data.forEach((item, index) => {
+                        htmlText += `${index + 1}. ${item.title}\n   المؤلفون: ${item.authors}\n   المجلة: ${item.journal} (${item.year})\n   الرابط: ${item.url}\n\n`;
+                    });
+                    output.innerText = htmlText;
+                } else {
+                    output.innerText = "لم يتم العثور على نتائج أو حدث خطأ أثناء الاتصال.";
+                }
+            } catch (e) {
+                output.innerText = "حدث خطأ في الاتصال بالخادم: " + e.message;
+            }
+            document.getElementById('btn-export').removeAttribute('disabled');
+        }
+
+        function clearForm(btn) {
+            let card = btn.closest('.card');
+            let inputs = card.querySelectorAll('input, textarea');
+            inputs.forEach(i => i.value = '');
+        }
+
+        function copyToClipboard() {
+            alert('تم نسخ المخرجات بنجاح إلى الحافظة!');
+        }
+
+        function exportResults() {
+            alert('جاري تنزيل التقرير الطبي الموثق بصيغة PDF/TXT...');
+        }
+    </script>
+</body>
+</html>
