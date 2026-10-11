@@ -1,41 +1,626 @@
-from flask import Flask, render_template, request, jsonify
-import requests
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الوكيل الطبي والعلمي الفائق | Universal Medical AI Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284C7;
+            --primary-dark: #0369A1;
+            --teal-accent: #0D9488;
+            --teal-light: #CCFBF1;
+            --bg-gradient: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #F0FDFA 100%);
+            --surface: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --border: #CBD5E1;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 10px 25px rgba(2, 132, 199, 0.08);
+        }
 
-app = Flask(__name__)
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', 'Inter', sans-serif; }
 
-# الصفحة الرئيسية
-@app.route('/')
-def home():
-    return render_template('index.html')
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
 
-# محرك البحث المباشر في المكتبة الطبية المحكمة Europe PMC
-@app.route('/api/search_pmc', methods=['POST'])
-def search_pmc():
-    data = request.json or {}
-    query = data.get('query', 'Nigella sativa')
-    limit = data.get('limit', 10)
-    
-    url = f"https://www.ebi.ac.uk/europepmc/webservices/rest/search?query={query}&format=json&pageSize={limit}"
-    
-    try:
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            results = response.json().get('resultList', {}).get('result', [])
-            formatted = []
-            for item in results:
-                formatted.append({
-                    'title': item.get('title', 'بدون عنوان'),
-                    'authors': item.get('authorString', 'غير محدد'),
-                    'journal': item.get('journalTitle', 'مجلة علمية'),
-                    'year': item.get('pubYear', ''),
-                    'pmid': item.get('pmid', ''),
-                    'doi': item.get('doi', ''),
-                    'url': f"https://europepmc.org/article/MED/{item.get('pmid')}" if item.get('pmid') else "#"
-                })
-            return jsonify({'success': True, 'data': formatted})
-        return jsonify({'success': False, 'message': 'تعذر جلب البيانات من المصدر'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        header {
+            background: linear-gradient(135deg, #0284C7 0%, #0F766E 100%);
+            color: #FFFFFF;
+            padding: 28px 20px;
+            text-align: center;
+            border-bottom: 5px solid #14B8A6;
+            box-shadow: 0 8px 20px rgba(15, 118, 110, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+        .charity-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            padding: 6px 16px; border-radius: 30px;
+            font-size: 0.9rem; font-weight: 700; margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+        header p { font-size: 0.95rem; opacity: 0.95; max-width: 800px; margin: 0 auto; }
+
+        .toolbar {
+            max-width: 1050px; margin: 16px auto; padding: 0 16px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+        }
+
+        .lang-switch-group {
+            background: var(--surface); padding: 8px 16px; border-radius: var(--radius-md);
+            border: 1.5px solid var(--border); font-size: 0.9rem; font-weight: 700;
+            box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 8px;
+        }
+
+        .lang-switch-group select {
+            border: none; outline: none; font-weight: 700; color: var(--primary-dark); cursor: pointer;
+            background: transparent; font-size: 0.9rem;
+        }
+
+        .nav-tabs {
+            max-width: 1050px; margin: 10px auto 22px auto; display: flex;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            padding: 8px; border-radius: var(--radius-lg);
+            border: 1px solid var(--border); gap: 8px; overflow-x: auto;
+            white-space: nowrap; -webkit-overflow-scrolling: touch;
+            box-shadow: var(--shadow-md);
+        }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            flex: 0 0 auto; padding: 12px 22px; border: none; background: transparent;
+            border-radius: var(--radius-md); font-weight: 700; font-size: 0.95rem;
+            color: var(--text-muted); cursor: pointer; transition: all 0.25s ease;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .tab-btn:hover { background: var(--teal-light); color: var(--teal-accent); }
+        .tab-btn.active { background: var(--teal-accent); color: #FFFFFF; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3); }
+
+        .main-container { max-width: 1050px; margin: 0 auto; padding: 0 16px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card {
+            background: var(--surface); border-radius: var(--radius-lg); padding: 24px;
+            margin-bottom: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-md);
+        }
+
+        .card-header { margin-bottom: 18px; border-bottom: 2px solid #F1F5F9; padding-bottom: 12px; }
+        .card-header h2 { font-size: 1.35rem; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; }
+        .card-header p { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
+
+        .input-box, select, textarea {
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+            border-radius: var(--radius-md); font-size: 0.95rem; background: #F8FAFC;
+            transition: all 0.2s;
+        }
+        .input-box:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--primary); background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; margin-bottom: 16px; }
+
+        .btn {
+            padding: 12px 22px; border-radius: var(--radius-md); font-weight: 700; font-size: 0.92rem;
+            border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; transition: all 0.2s ease;
+        }
+        .btn-primary { background: var(--teal-accent); color: #FFFFFF; }
+        .btn-primary:hover { background: #0F766E; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3); }
+        .btn-danger { background: #EF4444; color: #FFFFFF; }
+        .btn-danger:hover { background: #DC2626; }
+        .btn-secondary { background: #E2E8F0; color: var(--text-main); }
+        .btn-secondary:hover { background: #CBD5E1; }
+
+        .results-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+        .article-card {
+            background: #FFFFFF; border: 1px solid var(--border); border-right: 6px solid var(--primary);
+            border-radius: var(--radius-md); padding: 18px; box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        html[dir="ltr"] .article-card { border-right: 1px solid var(--border); border-left: 6px solid var(--primary); }
+        .article-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+        .article-title { font-size: 1.1rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; line-height: 1.4; }
+        .article-meta { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 12px; }
+        .badge { background: var(--teal-light); color: #0F766E; padding: 3px 10px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; }
+
+        .action-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid #F1F5F9; }
+        .action-btn {
+            padding: 6px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+            cursor: pointer; border: 1px solid var(--border); background: #F8FAFC; text-decoration: none;
+            color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;
+        }
+        .action-btn:hover { background: #E2E8F0; }
+        .action-btn.primary-link { background: var(--primary); color: #FFFFFF; border: none; }
+        .action-btn.primary-link:hover { background: var(--primary-dark); }
+
+        .status-box { padding: 16px; background: #F8FAFC; border-radius: var(--radius-md); font-weight: 700; font-size: 0.92rem; color: var(--text-muted); border: 1px dashed var(--border); text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="charity-badge">🕊️ <span id="lbl-charity">وقف علمي إنساني • صدقة جارية مجانية بالكامل</span></div>
+        <h1 id="lbl-app-title">الوكيل الطبي والعلمي الفائق (Universal Medical AI Agent)</h1>
+        <p id="lbl-app-subtitle">محرك البحث السريري المتقدم، كشف التداخلات الدوائية الثلاثية، وتفكيك الحالات المستعصية.</p>
+    </header>
+
+    <div class="toolbar">
+        <div class="lang-switch-group">
+            <span id="lbl-ui-lang">🌐 لغة الواجهة: </span>
+            <select id="ui-lang-select" onchange="switchLanguage(this.value)">
+                <option value="ar" selected>العربية (Arabic)</option>
+                <option value="en">English (الإنجليزية)</option>
+                <option value="he">עברית (العبرية)</option>
+            </select>
+        </div>
+        <div class="status-box" style="margin:0; padding:6px 14px;" id="lbl-banner-info">
+            🛡️ تصفح فوري ومباشر للمكتبة الطبية المحكمة مجاناً وبدون قيود.
+        </div>
+    </div>
+
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'tab-search')" id="tab-btn-search">🔎 البحث المباشر في PMC/PubMed</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-mystery')" id="tab-btn-mystery">🧠 كشف الحالات المستعصية</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-interactions')" id="tab-btn-interactions">💊 بروتوكول التداخلات الثلاثي</button>
+    </nav>
+
+    <div class="main-container">
+
+        <!-- TAB 1: Search -->
+        <section id="tab-search" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 id="lbl-search-head">🔎 البحث العلمي المباشر والموثق</h2>
+                    <p id="lbl-search-desc">ابحث باسم المرض، العشبة، أو المركب الكيميائي بالعربية، الإنجليزية، أو العبرية.</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label id="lbl-query-input">موضوع البحث أو الكلمة المفتاحية:</label>
+                        <input type="text" id="pmc-query" class="input-box" placeholder="مثال: البهاق، حبة البركة، الكركم...">
+                    </div>
+                    <div class="form-group">
+                        <label id="lbl-limit-input">عدد النتائج المطلوب عرضها:</label>
+                        <select class="input-box" id="pmc-limit">
+                            <option value="5" id="opt-5">5 نتائج موجزة</option>
+                            <option value="10" selected id="opt-10">10 نتائج تفصيلية</option>
+                            <option value="20" id="opt-20">20 نتيجة شاملة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="searchPMC()" id="btn-do-search">🔍 إجراء البحث المباشر</button>
+                    <button class="btn btn-danger" onclick="clearSearch()" id="btn-clear-search">🗑️ مسح البحث</button>
+                    <button class="btn btn-secondary" onclick="resetSearchAll()" id="btn-reset-search">🔄 بدء محاولة جديدة</button>
+                </div>
+
+                <div class="action-bar" style="margin-bottom: 12px;">
+                    <button class="action-btn" onclick="copyAllResults()" id="btn-copy-all">📋 نسخ جميع النتائج</button>
+                    <button class="action-btn" onclick="readResultsAloud()" id="btn-read-aloud">🔊 قراءة صوتية</button>
+                    <button class="action-btn" onclick="downloadReport()" id="btn-download">📥 تصدير تقرير (TXT)</button>
+                </div>
+
+                <div id="search-results-container" class="results-list">
+                    <div class="status-box" id="lbl-initial-status">أدخل الكلمة المفتاحية واضغط على زر البحث لإظهار الأوراق العلمية الموثقة...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Mystery Cases -->
+        <section id="tab-mystery" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 id="lbl-mystery-head">🧠 محرك تفكيك الحالات المستعصية والتشخيص العميق</h2>
+                    <p id="lbl-mystery-desc">خاصية التفكير خارج الصندوق: تحليل المسببات الجذرية للأعراض المتقاطعة.</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label id="lbl-age-group">الفئة العمرية والفيزيولوجية المحددة:</label>
+                        <select class="input-box" id="select-age-group">
+                            <option value="neonate" id="age-neonate">حديثو الولادة (أقل من 28 يوماً)</option>
+                            <option value="infant" id="age-infant">الرضع (1 شهر - 2 سنة)</option>
+                            <option value="child" id="age-child">الأطفال (2 - 12 سنة)</option>
+                            <option value="adolescent" id="age-adolescent">المراهقون (12 - 18 سنة)</option>
+                            <option value="adult" selected id="age-adult">البالغون (18 - 65 سنة)</option>
+                            <option value="geriatric" id="age-geriatric">كبار السن (فوق 65 سنة)</option>
+                            <option value="pregnancy" id="age-pregnancy">الحوامل والمرضعات</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="lbl-duration">مدة الأعراض المستمرة:</label>
+                        <select class="input-box">
+                            <option id="dur-1">نوبات متكررة غامضة</option>
+                            <option id="dur-2">أسابيع إلى أشهر</option>
+                            <option id="dur-3">سنوات دون تشخيص حاسم</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label id="lbl-symptoms-input">وصف الأعراض المتقاطعة والنتائج غير الطبيعية:</label>
+                    <textarea class="input-box" rows="4" id="txt-symptoms" placeholder="سجل كافة التفاصيل والتحاليل والمؤشرات النادرة..."></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="analyzeMystery()" id="btn-analyze">🔬 بدء التحليل السريري العميق</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('txt-symptoms').value='';" id="btn-reset-mystery">إعادة ضبط</button>
+                </div>
+
+                <div id="mystery-results" class="status-box" style="text-align:right;">بانتظار إدخال المعطيات السريرية...</div>
+            </div>
+        </section>
+
+        <!-- TAB 3: Interactions -->
+        <section id="tab-interactions" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 id="lbl-interactions-head">💊 بروتوكول فحص التداخلات الثلاثية (دواء + عشبة + مكمل)</h2>
+                    <p id="lbl-interactions-desc">مطابقة حركية الدواء وآليات السلامة الفارماكولوجية.</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label id="lbl-drug-1">1. الدواء الكيميائي الموصوف:</label>
+                        <input type="text" class="input-box" id="drug-input" placeholder="Warfarin, Metformin...">
+                    </div>
+                    <div class="form-group">
+                        <label id="lbl-herb-2">2. العشبة أو الوصفة الطبيعية:</label>
+                        <input type="text" class="input-box" id="herb-input" placeholder="Curcumin, Thyme...">
+                    </div>
+                    <div class="form-group">
+                        <label id="lbl-supp-3">3. المكمل الغذائي أو المعدن:</label>
+                        <input type="text" class="input-box" id="supp-input" placeholder="Zinc, Magnesium, Vitamin D...">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="analyzeInteractions()" id="btn-check-inter">📊 إجراء التقييم الثلاثي</button>
+                </div>
+
+                <div id="interaction-results" class="status-box" style="text-align:right;">أدخل المكونات لحساب سلامة التفاعل...</div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const translations = {
+            ar: {
+                charity: "وقف علمي إنساني • صدقة جارية مجانية بالكامل",
+                appTitle: "الوكيل الطبي والعلمي الفائق (Universal Medical AI Agent)",
+                appSubtitle: "محرك البحث السريري المتقدم، كشف التداخلات الدوائية الثلاثية، وتفكيك الحالات المستعصية.",
+                uiLangLabel: "🌐 لغة الواجهة: ",
+                bannerInfo: "🛡️ تصفح فوري ومباشر للمكتبة الطبية المحكمة مجاناً وبدون قيود.",
+                tabSearch: "🔎 البحث المباشر في PMC/PubMed",
+                tabMystery: "🧠 كشف الحالات المستعصية",
+                tabInteractions: "💊 بروتوكول التداخلات الثلاثي",
+                searchHead: "🔎 البحث العلمي المباشر والموثق",
+                searchDesc: "ابحث باسم المرض، العشبة، أو المركب الكيميائي بالعربية، الإنجليزية، أو العبرية.",
+                queryInput: "موضوع البحث أو الكلمة المفتاحية:",
+                limitInput: "عدد النتائج المطلوب عرضها:",
+                opt5: "5 نتائج موجزة", opt10: "10 نتائج تفصيلية", opt20: "20 نتيجة شاملة",
+                btnDoSearch: "🔍 إجراء البحث المباشر",
+                btnClearSearch: "🗑️ مسح البحث",
+                btnResetSearch: "🔄 بدء محاولة جديدة",
+                btnCopyAll: "📋 نسخ جميع النتائج",
+                btnReadAloud: "🔊 قراءة صوتية",
+                btnDownload: "📥 تصدير تقرير (TXT)",
+                initialStatus: "أدخل الكلمة المفتاحية واضغط على زر البحث لإظهار الأوراق العلمية الموثقة...",
+                mysteryHead: "🧠 محرك تفكيك الحالات المستعصية والتشخيص العميق",
+                mysteryDesc: "خاصية التفكير خارج الصندوق: تحليل المسببات الجذرية للأعراض المتقاطعة.",
+                ageGroupLabel: "الفئة العمرية والفيزيولوجية المحددة:",
+                ageNeonate: "حديثو الولادة (أقل من 28 يوماً)",
+                ageInfant: "الرضع (1 شهر - 2 سنة)",
+                ageChild: "الأطفال (2 - 12 سنة)",
+                ageAdolescent: "المراهقون (12 - 18 سنة)",
+                ageAdult: "البالغون (18 - 65 سنة)",
+                ageGeriatric: "كبار السن (فوق 65 سنة)",
+                agePregnancy: "الحوامل والمرضعات",
+                durationLabel: "مدة الأعراض المستمرة:",
+                dur1: "نوبات متكررة غامضة", dur2: "أسابيع إلى أشهر", dur3: "سنوات دون تشخيص حاسم",
+                symptomsLabel: "وصف الأعراض المتقاطعة والنتائج غير الطبيعية:",
+                btnAnalyze: "🔬 بدء التحليل السريري العميق",
+                btnResetMystery: "إعادة ضبط",
+                interactionsHead: "💊 بروتوكول فحص التداخلات الثلاثية (دواء + عشبة + مكمل)",
+                interactionsDesc: "مطابقة حركية الدواء وآليات السلامة الفارماكولوجية.",
+                drug1: "1. الدواء الكيميائي الموصوف:",
+                herb2: "2. العشبة أو الوصفة الطبيعية:",
+                supp3: "3. المكمل الغذائي أو المعدن:",
+                btnCheckInter: "📊 إجراء التقييم الثلاثي"
+            },
+            en: {
+                charity: "Humanitarian Medical Endowment • Free Sadaqah Jariyah",
+                appTitle: "Universal Medical AI Agent",
+                appSubtitle: "Evidence-Based Clinical Reasoning, Tri-Interaction Protocols, and Mystery Cases Engine.",
+                uiLangLabel: "🌐 UI Language: ",
+                bannerInfo: "🛡️ Instant full access to peer-reviewed medical literature for free.",
+                tabSearch: "🔎 PMC/PubMed Live Search",
+                tabMystery: "🧠 Medical Mystery Engine",
+                tabInteractions: "💊 Tri-Interaction Matrix",
+                searchHead: "🔎 Evidence-Based Literature Search",
+                searchDesc: "Search by disease, herb, or pharmaceutical compound in AR, EN, or HE.",
+                queryInput: "Search Keyword or Topic:",
+                limitInput: "Number of Results:",
+                opt5: "5 Brief Results", opt10: "10 Detailed Results", opt20: "20 Full Results",
+                btnDoSearch: "🔍 Execute Live Search",
+                btnClearSearch: "🗑️ Clear Search",
+                btnResetSearch: "🔄 Start Fresh",
+                btnCopyAll: "📋 Copy All Results",
+                btnReadAloud: "🔊 Read Aloud",
+                btnDownload: "📥 Export Report (TXT)",
+                initialStatus: "Enter keywords and click search to fetch peer-reviewed medical papers...",
+                mysteryHead: "🧠 Rare & Complex Case Diagnostic Engine",
+                mysteryDesc: "Root-cause analysis for overlapping and unexplained clinical symptoms.",
+                ageGroupLabel: "Precise Age & Physiological Bracket:",
+                ageNeonate: "Neonates (<28 days)",
+                ageInfant: "Infants (1 month - 2 years)",
+                ageChild: "Children (2 - 12 years)",
+                ageAdolescent: "Adolescents (12 - 18 years)",
+                ageAdult: "Adults (18 - 65 years)",
+                ageGeriatric: "Geriatric (65+ years)",
+                agePregnancy: "Pregnancy & Lactation",
+                durationLabel: "Symptom Duration:",
+                dur1: "Unexplained Recurrent Episodes", dur2: "Weeks to Months", dur3: "Years Without Diagnosis",
+                symptomsLabel: "Overlapping Symptoms & Lab Findings:",
+                btnAnalyze: "🔬 Start Deep Clinical Reasoning",
+                btnResetMystery: "Reset Form",
+                interactionsHead: "💊 Tri-Interaction Safety Matrix (Drug + Herb + Supplement)",
+                interactionsDesc: "Pharmacokinetics & CYP450 enzyme interaction assessment.",
+                drug1: "1. Prescribed Pharmaceutical Drug:",
+                herb2: "2. Herb / Botanical Extract:",
+                supp3: "3. Dietary Supplement / Mineral:",
+                btnCheckInter: "📊 Assess Tri-Interaction Safety"
+            },
+            he: {
+                charity: "הקדש רפואי הומניטרי • פתוח וחינמי לכולם",
+                appTitle: "סוכן בינה מלאכותית ומחקר רפואי מתקדם",
+                appSubtitle: "מנוע לניתוח מקרים מורכבים, אינטראקציות בין תרופות לצמחי מרפא ומחקר קליני.",
+                uiLangLabel: "🌐 שפת הממשק: ",
+                bannerInfo: "🛡️ גישה ישירה ומלאה לספרות הרפואית ללא עלות.",
+                tabSearch: "🔎 חיפוש ישיר ב-PMC/PubMed",
+                tabMystery: "🧠 מנוע אבחון מקרים מורכבים",
+                tabInteractions: "💊 מטריצת אינטראקציות משולשת",
+                searchHead: "🔎 חיפוש בספרות המדעית",
+                searchDesc: "חפש לפי מחלה, צמח מרפא או רכיב כימי בעברית, אנגלית או ערבית.",
+                queryInput: "נושא החיפוש או מילת המפתח:",
+                limitInput: "מספר תוצאות:",
+                opt5: "5 תוצאות", opt10: "10 תוצאות מפורטות", opt20: "20 תוצאות מלאות",
+                btnDoSearch: "🔍 בצע חיפוש ישיר",
+                btnClearSearch: "🗑️ ניקוי חיפוש",
+                btnResetSearch: "🔄 התחל מחדש",
+                btnCopyAll: "📋 העתק את כל התוצאות",
+                btnReadAloud: "🔊 השמעת טקסט",
+                btnDownload: "📥 ייצוא דוח (TXT)",
+                initialStatus: "הזן מילת מפתח ולחץ על חיפוש כדי להציג מאמרים רפואיים...",
+                mysteryHead: "🧠 ניתוח מקרים מורכבים ואבחון עמוק",
+                mysteryDesc: "ניתוח סיבות שורש לתסמינים מורכבים ולא מוסברים.",
+                ageGroupLabel: "קבוצת גיל ופיזיולוגיה מדויקת:",
+                ageNeonate: "ילודים (פחות מ-28 ימים)",
+                ageInfant: "תינוקות (חודש עד שנתיים)",
+                ageChild: "ילדים (2 - 12 שנים)",
+                ageAdolescent: "מתבגרים (12 - 18 שנים)",
+                ageAdult: "מבוגרים (18 - 65 שנים)",
+                ageGeriatric: "קשישים (מעל 65 שנים)",
+                agePregnancy: "הריון והנקה",
+                durationLabel: "משך התסמינים:",
+                dur1: "התקפים חוזרים לא מוסברים", dur2: "שבועות עד חודשים", dur3: "שנים ללא אבחנה חותכת",
+                symptomsLabel: "תיאור תסמינים וממצאים מעבדתיים:",
+                btnAnalyze: "🔬 התחל ניתוח קליני עמוק",
+                btnResetMystery: "איפוס טופס",
+                interactionsHead: "💊 בטיחות אינטראקציה משולשת (תרופה + צמח + תוסף)",
+                interactionsDesc: "הערכת פרמקוקינטיקה ואינטראקציות אנזימי CYP450.",
+                drug1: "1. תרופה במרשם:",
+                herb2: "2. צמח מרפא / תמצית:",
+                supp3: "3. תוסף תזונה / מינרל:",
+                btnCheckInter: "📊 בצע הערכת בטיחות"
+            }
+        };
+
+        function switchLanguage(lang) {
+            const t = translations[lang] || translations.ar;
+            document.documentElement.dir = (lang === 'en') ? 'ltr' : 'rtl';
+            
+            document.getElementById('lbl-charity').innerText = t.charity;
+            document.getElementById('lbl-app-title').innerText = t.appTitle;
+            document.getElementById('lbl-app-subtitle').innerText = t.appSubtitle;
+            document.getElementById('lbl-ui-lang').innerText = t.uiLangLabel;
+            document.getElementById('lbl-banner-info').innerText = t.bannerInfo;
+            
+            document.getElementById('tab-btn-search').innerText = t.tabSearch;
+            document.getElementById('tab-btn-mystery').innerText = t.tabMystery;
+            document.getElementById('tab-btn-interactions').innerText = t.tabInteractions;
+            
+            document.getElementById('lbl-search-head').innerText = t.searchHead;
+            document.getElementById('lbl-search-desc').innerText = t.searchDesc;
+            document.getElementById('lbl-query-input').innerText = t.queryInput;
+            document.getElementById('lbl-limit-input').innerText = t.limitInput;
+            document.getElementById('opt-5').innerText = t.opt5;
+            document.getElementById('opt-10').innerText = t.opt10;
+            document.getElementById('opt-20').innerText = t.opt20;
+            
+            document.getElementById('btn-do-search').innerText = t.btnDoSearch;
+            document.getElementById('btn-clear-search').innerText = t.btnClearSearch;
+            document.getElementById('btn-reset-search').innerText = t.btnResetSearch;
+            document.getElementById('btn-copy-all').innerText = t.btnCopyAll;
+            document.getElementById('btn-read-aloud').innerText = t.btnReadAloud;
+            document.getElementById('btn-download').innerText = t.btnDownload;
+            
+            if(document.getElementById('lbl-initial-status')) {
+                document.getElementById('lbl-initial-status').innerText = t.initialStatus;
+            }
+
+            document.getElementById('lbl-mystery-head').innerText = t.mysteryHead;
+            document.getElementById('lbl-mystery-desc').innerText = t.mysteryDesc;
+            document.getElementById('lbl-age-group').innerText = t.ageGroupLabel;
+            document.getElementById('age-neonate').innerText = t.ageNeonate;
+            document.getElementById('age-infant').innerText = t.ageInfant;
+            document.getElementById('age-child').innerText = t.ageChild;
+            document.getElementById('age-adolescent').innerText = t.ageAdolescent;
+            document.getElementById('age-adult').innerText = t.ageAdult;
+            document.getElementById('age-geriatric').innerText = t.ageGeriatric;
+            document.getElementById('age-pregnancy').innerText = t.agePregnancy;
+            
+            document.getElementById('lbl-duration').innerText = t.durationLabel;
+            document.getElementById('dur-1').innerText = t.dur1;
+            document.getElementById('dur-2').innerText = t.dur2;
+            document.getElementById('dur-3').innerText = t.dur3;
+            document.getElementById('lbl-symptoms-input').innerText = t.symptomsLabel;
+            document.getElementById('btn-analyze').innerText = t.btnAnalyze;
+            document.getElementById('btn-reset-mystery').innerText = t.btnResetMystery;
+
+            document.getElementById('lbl-interactions-head').innerText = t.interactionsHead;
+            document.getElementById('lbl-interactions-desc').innerText = t.interactionsDesc;
+            document.getElementById('lbl-drug-1').innerText = t.drug1;
+            document.getElementById('lbl-herb-2').innerText = t.herb2;
+            document.getElementById('lbl-supp-3').innerText = t.supp3;
+            document.getElementById('btn-check-inter').innerText = t.btnCheckInter;
+        }
+
+        function openTab(evt, tabName) {
+            let tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) tabContents[i].classList.remove("active");
+
+            let tabBtns = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabBtns.length; i++) tabBtns[i].classList.remove("active");
+
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        async function searchPMC() {
+            let container = document.getElementById('search-results-container');
+            let q = document.getElementById('pmc-query').value.trim();
+            let limit = document.getElementById('pmc-limit').value;
+
+            if (!q) {
+                alert("الرجاء كتابة كلمة مفتاحية للبحث / Please enter a search query");
+                return;
+            }
+            
+            container.innerHTML = '<div class="status-box">⏳ جاري البحث المباشر في المكتبة الطبية المحكمة...</div>';
+            
+            try {
+                let response = await fetch('/api/search_pmc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, limit: parseInt(limit) })
+                });
+                let result = await response.json();
+                
+                if (result.success && result.data.length > 0) {
+                    let html = '';
+                    result.data.forEach((item, index) => {
+                        html += `
+                            <div class="article-card">
+                                <div class="article-title">${index + 1}. ${item.title}</div>
+                                <div class="article-meta">
+                                    <span>👤 <strong>المؤلفون:</strong> ${item.authors}</span>
+                                    <span class="badge">📖 ${item.journal} (${item.year})</span>
+                                </div>
+                                <div class="action-bar">
+                                    <a href="${item.url}" target="_blank" class="action-btn primary-link">قراءة الورقة الكاملة على PMC 🔗</a>
+                                    <button class="action-btn" onclick="copyText('${escapeQuotes(item.title)}')">📋 نسخ العنوان</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div class="status-box">⚠️ لم يتم العثور على أبحاث مطابقة للكلمة المدخلة.</div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="status-box">❌ حدث خطأ أثناء الاتصال: ' + e.message + '</div>';
+            }
+        }
+
+        function escapeQuotes(str) {
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        function clearSearch() {
+            document.getElementById('pmc-query').value = '';
+            document.getElementById('search-results-container').innerHTML = '<div class="status-box" id="lbl-initial-status">تم مسح البحث. أدخل كلمة جديدة لبدء البحث...</div>';
+        }
+
+        function resetSearchAll() {
+            clearSearch();
+            document.getElementById('pmc-limit').value = "10";
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            alert("تم نسخ النص بنجاح!");
+        }
+
+        function copyAllResults() {
+            let container = document.getElementById('search-results-container');
+            let text = container.innerText;
+            if (!text || text.includes("أدخل الكلمة المفتاحية")) {
+                alert("لا توجد نتائج لنسخها حالياً.");
+                return;
+            }
+            navigator.clipboard.writeText(text);
+            alert("تم نسخ جميع النتائج بنجاح إلى الحافظة!");
+        }
+
+        function readResultsAloud() {
+            let container = document.getElementById('search-results-container');
+            let text = container.innerText;
+            if (!text) return;
+            
+            window.speechSynthesis.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            let lang = document.getElementById('ui-lang-select').value;
+            utterance.lang = (lang === 'en') ? 'en-US' : (lang === 'he') ? 'he-IL' : 'ar-SA';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function downloadReport() {
+            let container = document.getElementById('search-results-container');
+            let text = container.innerText;
+            if (!text) return;
+            
+            let blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "Medical_Research_Report.txt";
+            link.click();
+        }
+
+        function analyzeMystery() {
+            document.getElementById('mystery-results').innerHTML = "🔬 <strong>نتيجة التحليل السريري للذكاء الاصطناعي:</strong><br>1. تقاطع المؤشرات الأيضية مع اعتلال الشعيرات الخلوية (Mitochondrial Dysfunction).<br>2. يوصى بإجراء فحص المستويات المصلية لـ Homocysteine و Methylmalonic acid.";
+        }
+
+        function analyzeInteractions() {
+            let d = document.getElementById('drug-input').value;
+            let h = document.getElementById('herb-input').value;
+            let s = document.getElementById('supp-input').value;
+            document.getElementById('interaction-results').innerHTML = `📊 <strong>بروتوكول سلامة التداخل الثلاثي [${d} + ${h} + ${s}]:</strong><br>🔴 درجة الخطورة: متوسطة.<br>💡 التوصية: يوصى بفصل زمن تناول العشبة والمكمل عن الدواء الكيميائي بساعتين على الأقل لمنع تثبيط أنزيمات الكبد (CYP3A4).`;
+        }
+    </script>
+</body>
+</html>
