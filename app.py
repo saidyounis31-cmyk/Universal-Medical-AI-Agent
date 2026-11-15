@@ -39,8 +39,10 @@ def search_pmc():
         return jsonify(success=False, message="Invalid limit"), 400
     if not 1 <= limit <= 20:
         return jsonify(success=False, message="Limit must be 1–20"), 400
+    from multilingual_search import normalize_query
+    query_info = normalize_query(query)
     try:
-        response = requests.get(EPMC_URL, params={"query": query.strip(), "format": "json", "pageSize": limit, "resultType": "core"}, timeout=12)
+        response = requests.get(EPMC_URL, params={"query": query_info["normalized"], "format": "json", "pageSize": limit, "resultType": "core"}, timeout=12)
         response.raise_for_status()
         records = response.json().get("resultList", {}).get("result", [])
     except (requests.RequestException, ValueError):
@@ -60,7 +62,7 @@ def search_pmc():
         else:
             url = "https://europepmc.org/"
         results.append({"title": record.get("title") or "Untitled", "authors": record.get("authorString") or "", "journal": record.get("journalTitle") or "", "year": record.get("pubYear") or "", "url": url})
-    return jsonify(success=True, data=results, source="Europe PMC")
+    return jsonify(success=True, data=results, source="Europe PMC", effective_query=query_info["normalized"], query_rewritten=query_info["rewritten"])
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=int(os.environ.get("PORT", "8000")))
