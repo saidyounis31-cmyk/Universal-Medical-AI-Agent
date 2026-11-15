@@ -6,6 +6,17 @@ from flask import Flask, jsonify, render_template, request
 app = Flask(__name__)
 EPMC_URL = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
 
+@app.after_request
+def security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Content-Security-Policy"] = "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+    if request.is_secure or request.headers.get("X-Forwarded-Proto") == "https":
+        response.headers["Strict-Transport-Security"] = "max-age=31536000"
+    return response
+
 @app.get("/")
 def home():
     return render_template("index.html")
