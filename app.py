@@ -64,3 +64,28 @@ def search_pmc():
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=int(os.environ.get("PORT", "8000")))
+
+
+from youtube_service import search_videos, transcript_analysis
+
+@app.get("/api/youtube/search")
+def youtube_search():
+    query = request.args.get("q", "")
+    try:
+        return jsonify(results=search_videos(query))
+    except ValueError as exc:
+        return jsonify(error=str(exc)), 503 if "configured" in str(exc) else 400
+    except RuntimeError as exc:
+        return jsonify(error=str(exc)), 502
+
+@app.post("/api/youtube/analyze")
+def youtube_analyze():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify(error="JSON body required"), 400
+    try:
+        return jsonify(transcript_analysis(data.get("video_id"), data.get("transcript"), data.get("language", "ar"), data.get("question")))
+    except ValueError as exc:
+        return jsonify(error=str(exc)), 503 if "configured" in str(exc) else 400
+    except Exception:
+        return jsonify(error="AI video analysis temporarily unavailable"), 502
