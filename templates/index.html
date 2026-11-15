@@ -474,13 +474,13 @@
                     result.data.forEach((item, index) => {
                         html += `
                             <div class="article-card">
-                                <div class="article-title">${index + 1}. ${item.title}</div>
+                                <div class="article-title">${index + 1}. ${escapeHtml(item.title)}</div>
                                 <div class="article-meta">
-                                    <span>👤 <strong>المؤلفون:</strong> ${item.authors}</span>
-                                    <span class="badge">📖 ${item.journal} (${item.year})</span>
+                                    <span>👤 <strong>المؤلفون:</strong> ${escapeHtml(item.authors)}</span>
+                                    <span class="badge">📖 ${escapeHtml(item.journal)} (${escapeHtml(item.year)})</span>
                                 </div>
                                 <div class="action-bar">
-                                    <a href="${item.url}" target="_blank" class="action-btn primary-link">قراءة الورقة الكاملة على PMC 🔗</a>
+                                    <a href="${safeArticleUrl(item.url)}" target="_blank" class="action-btn primary-link">قراءة الورقة الكاملة على PMC 🔗</a>
                                     <button class="action-btn" onclick="copyText('${escapeQuotes(item.title)}')">📋 نسخ العنوان</button>
                                 </div>
                             </div>
@@ -496,6 +496,8 @@
             }
         }
 
+        function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+        function safeArticleUrl(s) { try { const u = new URL(s); return ['https:'].includes(u.protocol) && ['europepmc.org','www.ebi.ac.uk','pubmed.ncbi.nlm.nih.gov','doi.org'].includes(u.hostname) ? escapeHtml(u.href) : '#'; } catch { return '#'; } }
         function escapeQuotes(str) { return str.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
         function clearSearch() {
@@ -545,14 +547,11 @@
         }
 
         function analyzeMystery() {
-            document.getElementById('mystery-results').innerHTML = "🔬 <strong>نتيجة التحليل السريري للذكاء الاصطناعي:</strong><br>1. تقاطع المؤشرات الأيضية مع اعتلال الشعيرات الخلوية (Mitochondrial Dysfunction).<br>2. يوصى بإجراء فحص المستويات المصلية لـ Homocysteine و Methylmalonic acid.";
+            document.getElementById('mystery-results').textContent = 'التحليل السريري الآلي غير متاح حاليًا. لا يمكن تقديم تشخيص أو نتائج مخبرية مفترضة. يرجى استشارة طبيب مختص.';
         }
 
         function analyzeInteractions() {
-            let d = document.getElementById('drug-input').value;
-            let h = document.getElementById('herb-input').value;
-            let s = document.getElementById('supp-input').value;
-            document.getElementById('interaction-results').innerHTML = `📊 <strong>بروتوكول سلامة التداخل الثلاثي:</strong><br>🔴 درجة الخطورة: متوسطة.<br>💡 التوصية: يوصى بفصل زمن تناول العشبة والمكمل عن الدواء الكيميائي بساعتين على الأقل لمنع تثبيط أنزيمات الكبد (CYP3A4).`;
+            document.getElementById('interaction-results').textContent = 'لا يوجد محرك تحقق دوائي موثق متصل حاليًا. لا تفترض أمان الجمع بين الدواء والعشبة والمكمل، ولا تعتمد على فصل الجرعات ساعتين كحل للتداخلات. استشر الصيدلي أو الطبيب.';
         }
 
         window.addEventListener('DOMContentLoaded', () => {
