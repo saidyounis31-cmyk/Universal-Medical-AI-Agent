@@ -481,18 +481,19 @@
                                 </div>
                                 <div class="action-bar">
                                     <a href="${safeArticleUrl(item.url)}" target="_blank" class="action-btn primary-link">قراءة الورقة الكاملة على PMC 🔗</a>
-                                    <button class="action-btn" onclick="copyText('${escapeQuotes(item.title)}')">📋 نسخ العنوان</button>
+                                    <button class="action-btn copy-title-btn" type="button" data-result-index="${index}">📋 نسخ العنوان</button>
                                 </div>
                             </div>
                         `;
                     });
                     container.innerHTML = html;
+                    container.querySelectorAll('.copy-title-btn').forEach(button => button.addEventListener('click', () => copyText(String(result.data[Number(button.dataset.resultIndex)].title ?? ''))));
                 } else {
                     let msg = (result && result.message) ? result.message : 'لم يتم العثور على أبحاث مطابقة.';
-                    container.innerHTML = `<div class="status-box">⚠️ ${msg}</div>`;
+                    container.textContent = '⚠️ ' + String(msg);
                 }
             } catch (e) {
-                container.innerHTML = '<div class="status-box">❌ حدث خطأ أثناء الاتصال بالخادم: ' + e.message + '</div>';
+                container.textContent = '❌ حدث خطأ أثناء الاتصال بالخادم. حاول مرة أخرى.';
             }
         }
 
